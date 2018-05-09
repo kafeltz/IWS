@@ -1,0 +1,19 @@
+{
+    "automock": false,
+    "bail": false,
+    "cache": false,
+    "coverageThreshold": {
+        "global": {"branches": 90, "functions": 90, "lines": 90, "statements": 90}
+    },
+    "moduleDirectories": ["node_modules"],
+    "moduleNameMapper": {"\\.(css|less)$": "identity-obj-proxy"},
+    "notify": false,
+    "setupFiles": ["./setupJest.js"],
+    "testRegex": "__tests__/([a-zA-Z\\.\\-]+)spec\\.jsx?$",
+    "transform": {
+         "^.+\\.jsx?$": "babel-jest"
+    },
+    "updateSnapshot": false,
+    "verbose": true,
+    "testPathIgnorePatterns": ["/node_modules/", "/dist/"]
+}

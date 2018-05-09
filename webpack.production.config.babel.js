@@ -15,8 +15,8 @@ module.exports = env => {
         entry: './src/index.js',
         output: {
             path: path.resolve(__dirname, 'dist'),
-            filename: 'evWebRTC.[hash].js',
-            library: 'evWebRTC',
+            filename: 'evWebSocket.[hash].js',
+            library: 'evWebSocket',
             libraryTarget: 'var',
         },
         plugins: [
@@ -29,7 +29,7 @@ module.exports = env => {
                     region: 'us-east-1',
                 },
                 basePathTransform: () => {
-                    return 'webrtc/assets/'
+                    return 'evWebSocket/assets/'
                 },
                 s3UploadOptions: {
                     Bucket: bucket,

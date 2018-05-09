@@ -1,3 +1,14 @@
 {
-    "presets": ["es2015"]
+    "presets": [
+        [
+            "env",
+            {
+                "targets": {
+                    "node": "current"
+                },
+                "debug": false
+            }
+        ]
+    ],
+    "plugins": ["transform-es2015-spread", "transform-object-rest-spread"]
 }

@@ -6,7 +6,7 @@ import webpack from 'webpack'
 module.exports = {
     mode: 'development',
     target: 'web',
-    devtool: false,
+    devtool: 'inline-source-map',
     entry: './playground/index.js',
     devServer: {
         contentBase: './dist',
@@ -15,7 +15,7 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'iws.js',
+        filename: 'evWebSocket.js',
     },
     plugins: [
         new CleanWebpackPlugin(['dist']),

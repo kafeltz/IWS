@@ -1,31 +1,60 @@
-// import IWS from '../src/index'
-
-// const config = {
-//     // url: 'ws://52.15.180.35:8888/rtc',
-//     url: 'ws://localhost:3001/',
-//     debug: true,
-// }
-
-// const iws = new IWS(config)
-
-// window.iws = iws
-
-// console.log('iws: ', iws)
-
 import WsApi from '../src/api'
 
 const config = {
     url: 'ws://localhost:3001/',
     // url: 'ws://52.15.180.35:8888/rtc',
     debug: true,
+    channel: 'fhosdtj3ij3wkdij',
+    email: 'random@email.com',
 }
 
-const api = new WsApi(config)
+const client = document.location.search
 
-api.listenTalkEvents(data => {
-    console.log('Eu bobão tenho interesse em ouvir!', data)
-})
+try {
+    const api = new WsApi(config, window.WebSocket)
 
-api.listenTalkEvents(data => {
-    console.log('Também tenho interesse em ouvir!', data)
-})
+    api.iws.send({
+        'method': 'talk.stream_started',
+        'data': {
+            'state': 'live',
+        },
+    })
+
+    api.iws.send({
+        'method': 'talk.vod_published',
+        'data': {
+            'state': 'live',
+        },
+    })
+
+    api.iws.send({
+        random: 'random',
+        abc: 'abc',
+    })
+
+    var i = 0
+
+    let intervalId = setInterval(() => {
+        api.iws.send({
+            send: i,
+            client: client,
+        })
+        i = i + 1
+    }, 4000)
+
+    api.onTalkStateChanged((msg, data) => {
+        console.log('api.onTalkStateChanged', msg, data)
+    })
+
+    api.onError((msg, data) => {
+        console.error('api.onError', msg, data)
+    })
+
+    setTimeout(() => {
+        console.warn('!!!!!!!!!!!!!!!! SHUTDOWN !!!!!!!!!!!!!!!!')
+        clearInterval(intervalId)
+        api.destroy()
+    }, 30 * 1000)
+} catch(e) {
+    console.error('um erro grave ocorreu!', e)
+}

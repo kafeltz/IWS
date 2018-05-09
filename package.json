@@ -5,21 +5,32 @@
   "main": "index.js",
   "scripts": {
     "start": "node_modules/.bin/webpack-dev-server --host 0.0.0.0 --config webpack.development.config.babel.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "staging": "webpack --config webpack.production.config.babel.js --mode production --env.target=staging",
+    "production": "webpack --config webpack.production.config.babel.js --display-modules --mode production --env.target=production",
+    "ws-server": "node ws-server.js",
+    "test:js": "./node_modules/jest/bin/jest.js --config=jest.json",
+    "test:js:watch": "./node_modules/jest/bin/jest.js --config=jest.json --watch"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-plugin-transform-es2015-spread": "^6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
     "clean-webpack-plugin": "^0.1.19",
     "express": "^4.16.3",
     "express-ws": "^3.0.0",
     "html-webpack-plugin": "^3.2.0",
     "install": "^0.11.0",
+    "jest": "^22.4.3",
     "npm": "^6.0.0",
     "pubsub-js": "^1.6.0",
+    "regenerator-runtime": "^0.11.1",
     "webpack": "^4.7.0",
     "webpack-cli": "^2.1.2",
     "webpack-dev-server": "^3.1.3",
-    "webpack-merge": "^4.1.2"
+    "webpack-merge": "^4.1.2",
+    "webpack-s3-plugin": "^1.0.0-rc.0"
   }
 }
