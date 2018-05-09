@@ -3,6 +3,7 @@
 // https://html.spec.whatwg.org/multipage/web-sockets.html
 const defaultConfig = {
     debug: false,
+    url: undefined,
     reconnectInterval: 5 * 1000,
     onMessage: () => {},
 }
@@ -23,17 +24,30 @@ let error = function() {
     console.error.apply(console, ['IWS:', ...arguments])
 }
 
-//  Esta classe abre apenas uma única conexão WebSocket.
+//  Esta classe abre apenas uma única conexão por vez WebSocket.
 class IWS {
-    constructor(config) {
-        if (typeof WebSocket === 'undefined') {
-            throw new Error('Your browser has no support to WebSocket')
+    constructor(config, WebSocketConstructor) {
+        if (!WebSocket) {
+            throw new Error('Your user agent has no support to WebSocket')
         }
 
-        this.messages = []
         this.config = { ...defaultConfig, ...config }
+
+        if (!this.config.url) {
+            throw new Error('missing or invalid url in config')
+        }
+
+        this.WebSocketConstructor = WebSocketConstructor
+
+        this.messages = []
         this.ws = null
         this.intervalId = -1
+
+        // this.destroy significa que não pode mais tentar reconectar (recriar a instancia) nunca mais
+        // hoje, esta classe vai tentar reconectar em qualquer erro que ocorreu (esse comportamento pode mudar no futuro)
+        this.dead = false
+
+        this.lastMessage = null
 
         if (!this.config.debug) {
             log = () => {}
@@ -42,16 +56,13 @@ class IWS {
             error = () => {}
         }
 
-        this.connect()
+        this.connect(this.WebSocketConstructor)
     }
 
     connect() {
-        // WebSocket pode lançar exceção que não é possível pegar pelo try/catch se o endpoint tiver algum problema.
-        // Isso tá na especificação do WebSocket e parece ser por motivos de segurança
-
         // verifica se já está conectado
         if (!this.ws) {
-            this.ws = new WebSocket(this.config.url)
+            this.ws = new this.WebSocketConstructor(this.config.url)
             this.ws.binaryType = 'blob'
 
             this.ws.addEventListener('close', this.handleWsOnClose.bind(this))
@@ -62,14 +73,25 @@ class IWS {
     }
 
     disconnect() {
+        clearInterval(this.intervalId)
+
         if (this.ws) {
+            // readiciona a mensagem que foi tirada da fila
+            if (this.lastMessage && this.ws.bufferedAmount > 0) {
+                this.messages = [this.lastMessage, ...this.messages]
+            }
+
+            this.lastMessage = null
+
             this.ws.removeEventListener('close', this.handleWsOnClose)
             this.ws.removeEventListener('error', this.handleWsOnError)
             this.ws.removeEventListener('message', this.handleWsOnMessage)
             this.ws.removeEventListener('open', this.handleWsOnOpen)
+
+            // close tem que ser chamado por último porque esse método limpa tudo da instancia do WebSocket
+            // e daí não é possível fazer mais nenhum tratamento de erro
             this.ws.close()
             this.ws = null
-            clearInterval(this.intervalId)
         }
     }
 
@@ -80,21 +102,20 @@ class IWS {
             error(`Connect abnormally closed: wasClean: [${e.wasClean}], code: [${e.code}].`)
         }
 
-        if (this.ws) {
-            this.disconnect()
-        } else {
-            warn('WebSocket not created, possible network failure exception trying to stabilish a connection.')
-        }
+        this.disconnect()
 
-        // try to reconnect after 1 second
-        setTimeout(() => {
-            info('trying to reconnect...')
-            this.connect()
-        }, this.config.reconnectInterval)
+        // try to reconnect after a period of time
+        if (!this.dead) {
+            setTimeout(() => {
+                info('trying to reconnect...')
+                this.connect()
+            }, this.config.reconnectInterval)
+        }
     }
 
     handleWsOnError() {
         log('handleWsOnError')
+        this.disconnect()
     }
 
     handleWsOnMessage(e) {
@@ -114,17 +135,25 @@ class IWS {
             if (this.ws.bufferedAmount === 0 && this.messages.length > 0) {
                 const message = this.messages.splice(0, 1)[0]
 
+                this.lastMessage = message
+
                 this.ws.send(JSON.stringify(message))
 
                 info('sending: ', message)
             }
-        }, 100)
+        }, 15)
     }
 
+    // external api
     send(keyValueObject) {
-        if (typeof keyValueObject !== 'undefined' && Object.keys(keyValueObject).length > 0) {
-            this.messages.push(keyValueObject)
-        }
+        this.messages.push(keyValueObject)
+    }
+
+    // external api
+    destroy() {
+        info('destroy')
+        this.dead = true
+        this.disconnect()
     }
 }
 
