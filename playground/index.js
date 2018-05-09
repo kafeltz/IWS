@@ -1,6 +1,7 @@
 import WsApi from '../src/api'
 
 const config = {
+    // url: 'wss://www.eventials.com/websocket/',
     url: 'ws://localhost:3001/',
     // url: 'ws://52.15.180.35:8888/rtc',
     debug: true,
