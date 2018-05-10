@@ -14,7 +14,7 @@ import PubSub from 'pubsub-js'
 
 // methods
 const TALK_STATE_CHANGED = 'talk.updates.state_changed'
-const TALK_STREAM_STARTED = 'talk.stream_started'
+const TALK_START_TIME_CHANGED = 'talk.start_time_changed'
 const TALK_VOD_PUBLISHED = 'talk.vod_published'
 
 const ON_MESSAGE_ERROR = 'ON_MESSAGE_ERROR'
@@ -66,8 +66,8 @@ class evWebSocketAPI {
                 case TALK_STATE_CHANGED:
                     PubSub.publish(TALK_STATE_CHANGED, data)
                     break
-                case TALK_STREAM_STARTED:
-                    PubSub.publish(TALK_STREAM_STARTED, data)
+                case TALK_START_TIME_CHANGED:
+                    PubSub.publish(TALK_START_TIME_CHANGED, data)
                     break
                 case TALK_VOD_PUBLISHED:
                     PubSub.publish(TALK_VOD_PUBLISHED, data)
@@ -83,6 +83,16 @@ class evWebSocketAPI {
     // external api
     onTalkStateChanged(fn) {
         PubSub.subscribe(TALK_STATE_CHANGED, fn)
+    }
+
+    // external api
+    onTalkStartTimeChanged(fn) {
+        PubSub.subscribe(TALK_START_TIME_CHANGED, fn)
+    }
+
+    // external api
+    onTalkVodPublished(fn) {
+        PubSub.subscribe(TALK_VOD_PUBLISHED, fn)
     }
 
     // external api

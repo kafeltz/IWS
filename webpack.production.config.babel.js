@@ -12,11 +12,11 @@ module.exports = env => {
         mode: 'production',
         target: 'web',
         devtool: 'source-map',
-        entry: './src/index.js',
+        entry: './src/api.js',
         output: {
             path: path.resolve(__dirname, 'dist'),
-            filename: 'evWebSocket.[hash].js',
-            library: 'evWebSocket',
+            filename: 'WsApi.[hash].js',
+            library: 'WsApi',
             libraryTarget: 'var',
         },
         plugins: [
