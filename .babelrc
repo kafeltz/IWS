@@ -4,7 +4,8 @@
             "env",
             {
                 "targets": {
-                    "node": "current"
+                    "node": "current",
+                     "browsers": ["ie 11"]
                 },
                 "debug": false
             }
