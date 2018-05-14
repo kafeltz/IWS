@@ -17,14 +17,10 @@ try {
 
     api.iws.send({
         'method': 'talk.start_time_changed',
-        'data': {
-        },
     })
 
     api.iws.send({
         'method': 'talk.vod_published',
-        'data': {
-        },
     })
 
     api.iws.send({
@@ -49,8 +45,8 @@ try {
         i = i + 1
     }, 4000)
 
-    api.onTalkStateChanged((msg, data) => {
-        console.warn('api.onTalkStateChanged', msg, data)
+    api.onTalkStreamStarted((msg, data) => {
+        console.warn('api.onTalkStreamStarted', msg, data)
     })
 
     api.onTalkStartTimeChanged((msg, data) => {

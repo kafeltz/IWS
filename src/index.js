@@ -6,6 +6,7 @@ const defaultConfig = {
     url: undefined,
     reconnectInterval: 5 * 1000,
     onMessage: () => {},
+    onOpen: () => {},
 }
 
 let log = function() {
@@ -127,6 +128,8 @@ class IWS {
     handleWsOnOpen() {
         log('connection success!')
 
+        this.config.onOpen()
+
         this.initAutomaticSender()
     }
 
@@ -147,6 +150,10 @@ class IWS {
     // external api
     send(keyValueObject) {
         this.messages.push(keyValueObject)
+    }
+
+    sendFirst(keyValueObject) {
+        this.messages = [keyValueObject, ...this.messages]
     }
 
     // external api

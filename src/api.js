@@ -13,7 +13,7 @@ let info = function() {
 import PubSub from 'pubsub-js'
 
 // methods
-const TALK_STATE_CHANGED = 'talk.updates.state_changed'
+const TALK_STREAM_STARTED = 'talk.stream_started'
 const TALK_START_TIME_CHANGED = 'talk.start_time_changed'
 const TALK_VOD_PUBLISHED = 'talk.vod_published'
 
@@ -29,6 +29,7 @@ class evWebSocketAPI {
     constructor(config, WebSocketConstructor) {
         const callback = {
             onMessage: data => this.handleOnMessage(data),
+            onOpen: () => this.subscribeChannel(),
         }
 
         this.config = { ...defaultConfig, ...callback, ...config }
@@ -38,8 +39,6 @@ class evWebSocketAPI {
         }
 
         this.iws = new IWS(this.config, WebSocketConstructor)
-
-        this.subscribeChannel()
     }
 
     subscribeChannel() {
@@ -51,7 +50,7 @@ class evWebSocketAPI {
             },
         }
 
-        this.iws.send(obj)
+        this.iws.sendFirst(obj)
     }
 
     handleOnMessage(payload) {
@@ -63,8 +62,8 @@ class evWebSocketAPI {
             const data = json.data
 
             switch(method) {
-                case TALK_STATE_CHANGED:
-                    PubSub.publish(TALK_STATE_CHANGED, data)
+                case TALK_STREAM_STARTED:
+                    PubSub.publish(TALK_STREAM_STARTED, data)
                     break
                 case TALK_START_TIME_CHANGED:
                     PubSub.publish(TALK_START_TIME_CHANGED, data)
@@ -81,8 +80,8 @@ class evWebSocketAPI {
     }
 
     // external api
-    onTalkStateChanged(fn) {
-        PubSub.subscribe(TALK_STATE_CHANGED, fn)
+    onTalkStreamStarted(fn) {
+        PubSub.subscribe(TALK_STREAM_STARTED, fn)
     }
 
     // external api
